@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volleyball Scoreboard Pro</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f6f8;
+}
+
+/* HEADER */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: #1e1e1e;
+    color: white;
+}
+
+.title {
+    font-size: 18px;
+}
+
+/* HAMBURGER */
+.hamburger {
+    width: 28px;
+    height: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.hamburger span {
+    height: 3px;
+    width: 100%;
+    background: white;
+    border-radius: 2px;
+    transition: 0.3s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* MENU PANEL */
+.menu {
+    position: fixed;
+    top: 0;
+    right: -260px;
+    width: 240px;
+    height: 100%;
+    background: #2b2b2b;
+    color: white;
+    padding: 25px 20px;
+    transition: 0.3s ease;
+    z-index: 20;
+}
+
+.menu.open { right: 0; }
+.menu button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+/* OVERLAY */
+.overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s;
+    z-index: 15;
+}
+
+.overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* MAIN AREA */
+.container {
+    display: flex;
+    height: calc(100vh - 60px);
+}
+
+.team {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Indicator bar */
+.indicator {
+    width: 60%;
+    height: 6px;
+    border-radius: 3px;
+    margin-bottom: 20px;
+}
+
+.blue-indicator { background: #1565C0; }
+.red-indicator { background: #C62828; }
+
+.team-name {
+    font-size: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.score {
+    font-size: 15vw;
+    font-weight: 600;
+    margin: 15px 0;
+}
+
+/* BUTTON COLUMN */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 10px;
+}
+
+.control-btn {
+    width: 70px;
+    height: 55px;
+    font-size: 28px;
+    border-radius: 12px;
+    border: none;
+    background: #d0d3d8;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.control-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.control-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Wins */
+.wins {
+    position: absolute;
+    bottom: 25px;
+    font-size: 16px;
+}
+
+/* Flash overlay */
+.flash {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Swap button at bottom */
+.swap-btn {
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffa726;
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="title">🏐 Volleyball Scoreboard</div>
+    <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</div>
+
+<div id="menu" class="menu">
+    <h3>Menu</h3>
+    <button id="resetBtn">Hold 10s to Reset</button>
+</div>
+
+<div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+<div id="flash" class="flash"></div>
+
+<div class="container">
+
+    <!-- BLUE TEAM -->
+    <div class="team" id="teamA">
+        <div class="indicator blue-indicator" id="indicatorA"></div>
+        <div class="team-name" id="nameA">BLUE</div>
+        <div id="scoreA" class="score">0</div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="changeScore('A',1)">+</button>
+            <button class="control-btn" onclick="changeScore('A',-1)">−</button>
+        </div>
+
+        <div class="wins">Wins: <span id="winsA">0</span></div>
+    </div>
+
+    <!-- RED TEAM -->
+    <div class="team" id="teamB">
+        <div class="indicator red-indicator" id="indicatorB"></div>
+        <div class="team-name" id="nameB">RED</div>
+        <div id="scoreB" class="score">0</div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="changeScore('B',1)">+</button>
+            <button class="control-btn" onclick="changeScore('B',-1)">−</button>
+        </div>
+
+        <div class="wins">Wins: <span id="winsB">0</span></div>
+    </div>
+
+</div>
+
+<button id="swapBtn" class="swap-btn" onclick="swapSides()">Switch Sides</button>
+
+<script>
+let scoreA = localStorage.getItem("scoreA") ? parseInt(localStorage.getItem("scoreA")) : 0;
+let scoreB = localStorage.getItem("scoreB") ? parseInt(localStorage.getItem("scoreB")) : 0;
+let winsA = localStorage.getItem("winsA") ? parseInt(localStorage.getItem("winsA")) : 0;
+let winsB = localStorage.getItem("winsB") ? parseInt(localStorage.getItem("winsB")) : 0;
+
+let actionLocked = false;
+let swapLocked = false;
+let resetTimer = null;
+
+updateUI();
+updateSwapButton();
+
+/* RESET HOLD LOGIC */
+const resetBtn = document.getElementById("resetBtn");
+
+resetBtn.addEventListener("mousedown", startResetTimer);
+resetBtn.addEventListener("touchstart", startResetTimer);
+
+resetBtn.addEventListener("mouseup", cancelResetTimer);
+resetBtn.addEventListener("mouseleave", cancelResetTimer);
+resetBtn.addEventListener("touchend", cancelResetTimer);
+
+function startResetTimer(){
+    resetBtn.innerText = "Hold... 10s";
+    resetTimer = setTimeout(()=>{
+        resetAll();
+        resetBtn.innerText = "Hold 10s to Reset";
+    },10000);
+}
+
+function cancelResetTimer(){
+    clearTimeout(resetTimer);
+    resetBtn.innerText = "Hold 10s to Reset";
+}
+
+/* EXISTING CODE BELOW (UNCHANGED) */
+function toggleMenu(){
+    document.getElementById("menu").classList.toggle("open");
+    document.getElementById("hamburger").classList.toggle("active");
+    document.getElementById("overlay").classList.toggle("show");
+}
+
+function beep(freq=800, duration=0.15){
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    osc.frequency.value = freq;
+    osc.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+}
+
+function victoryTone(){
+    beep(600,0.2);
+    setTimeout(()=>beep(750,0.2),200);
+}
+
+function dangerTone(){
+    beep(200,0.2);
+    setTimeout(()=>beep(200,0.2),250);
+    setTimeout(()=>beep(200,0.2),500);
+}
+
+function announce(text){
+    const synth = window.speechSynthesis;
+    const utter = new SpeechSynthesisUtterance(text);
+    synth.speak(utter);
+}
+
+function flash(color, times=1){
+    const f = document.getElementById("flash");
+    f.style.background = color;
+    let count=0;
+    let interval=setInterval(()=>{
+        f.style.opacity = f.style.opacity==0 ? 0.25 : 0;
+        count++;
+        if(count>=times*2){
+            clearInterval(interval);
+            f.style.opacity=0;
+        }
+    },150);
+}
+
+function lock(){
+    actionLocked=true;
+    document.querySelectorAll(".control-btn").forEach(b=>b.disabled=true);
+    setTimeout(()=>{
+        actionLocked=false;
+        document.querySelectorAll(".control-btn").forEach(b=>b.disabled=false);
+    },500);
+}
+
+function changeScore(team, amount){
+    if(actionLocked) return;
+
+    if(team==='A'){
+        if(amount===-1 && scoreA===0) return;
+        scoreA+=amount;
+    } else {
+        if(amount===-1 && scoreB===0) return;
+        scoreB+=amount;
+    }
+
+    lock();
+
+    if(amount===1){
+        beep();
+        flash(team==='A' ? "#1565C0" : "#C62828");
+    } else {
+        dangerTone();
+        flash(team==='A' ? "#1565C0" : "#C62828",3);
+    }
+
+    announce(`Team ${team==='A'?'Blue':'Red'} score is now ${team==='A'?scoreA:scoreB}`);
+
+    checkWinner();
+    save();
+    updateUI();
+    updateSwapButton();
+}
+
+function checkWinner(){
+    if((scoreA>=25 || scoreB>=25) && Math.abs(scoreA-scoreB)>=2){
+        if(scoreA>scoreB){ 
+            winsA++; flash("#1565C0",3); 
+            announce("Blue wins the set!");
+        } else { 
+            winsB++; flash("#C62828",3); 
+            announce("Red wins the set!");
+        }
+        victoryTone();
+        setTimeout(()=>{
+            scoreA=0; scoreB=0;
+            save(); updateUI();
+            updateSwapButton();
+        },1500);
+    }
+}
+
+function save(){
+    localStorage.setItem("scoreA",scoreA);
+    localStorage.setItem("scoreB",scoreB);
+    localStorage.setItem("winsA",winsA);
+    localStorage.setItem("winsB",winsB);
+}
+
+function resetAll(){
+    scoreA=0; scoreB=0; winsA=0; winsB=0;
+    save(); updateUI();
+    updateSwapButton();
+    toggleMenu();
+}
+
+function swapSides(){
+    if(swapLocked) return;
+
+    const nameA = document.getElementById("nameA").innerText;
+    const nameB = document.getElementById("nameB").innerText;
+    document.getElementById("nameA").innerText = nameB;
+    document.getElementById("nameB").innerText = nameA;
+
+    const indA = document.getElementById("indicatorA").className;
+    const indB = document.getElementById("indicatorB").className;
+    document.getElementById("indicatorA").className = indB;
+    document.getElementById("indicatorB").className = indA;
+
+    const tempScore = scoreA;
+    scoreA = scoreB;
+    scoreB = tempScore;
+
+    const tempWins = winsA;
+    winsA = winsB;
+    winsB = tempWins;
+
+    save();
+    updateUI();
+    announce("Switching sides");
+
+    swapLocked = true;
+    updateSwapButton();
+    setTimeout(()=>{ swapLocked=false; updateSwapButton(); },3000);
+}
+
+function updateSwapButton(){
+    const btn = document.getElementById("swapBtn");
+    if(swapLocked){
+        btn.style.display="none";
+        return;
+    }
+    if((scoreA===0 && scoreB===0) || winsA>0 || winsB>0){
+        btn.style.display="block";
+    } else {
+        btn.style.display="none";
+    }
+}
+
+function updateUI(){
+    document.getElementById("scoreA").innerText=scoreA;
+    document.getElementById("scoreB").innerText=scoreB;
+    document.getElementById("winsA").innerText=winsA;
+    document.getElementById("winsB").innerText=winsB;
+}
+</script>
+
+</body>
+</html>
