@@ -384,10 +384,10 @@ body {
 // Audio Configuration
 // Option 1: Use local audio files (place in same directory as HTML)
 const AUDIO_CONFIG = {
-    useLocal: false, // Set to false to use online sounds
+    useLocal: true, // Set to false to use online sounds
     localFiles: {
-        point: 'beep.mp3',      // Point scored sound
-        minus: 'danger.mp3'     // Point deducted sound
+        point: './beep.mp3',      // Point scored sound
+        minus: './danger.mp3'     // Point deducted sound
     },
     onlineUrls: {
         point: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3', // Professional beep
@@ -403,12 +403,23 @@ function loadAudio() {
     if (AUDIO_CONFIG.useLocal) {
         audioPoint.src = AUDIO_CONFIG.localFiles.point;
         audioMinus.src = AUDIO_CONFIG.localFiles.minus;
+        console.log('Loading local audio files:', audioPoint.src, audioMinus.src);
     } else {
         audioPoint.src = AUDIO_CONFIG.onlineUrls.point;
         audioMinus.src = AUDIO_CONFIG.onlineUrls.minus;
+        console.log('Loading online audio files');
     }
     audioPoint.volume = 0.5;
     audioMinus.volume = 0.5;
+    
+    // Add error handlers
+    audioPoint.addEventListener('error', (e) => {
+        console.error('Error loading point sound:', audioPoint.src, e);
+    });
+    audioMinus.addEventListener('error', (e) => {
+        console.error('Error loading minus sound:', audioMinus.src, e);
+    });
+    
     // Preload to reduce delay
     audioPoint.load();
     audioMinus.load();
@@ -551,7 +562,7 @@ function lock() {
     setTimeout(() => {
         actionLocked = false;
         document.querySelectorAll(".control-btn").forEach(b => b.disabled = false);
-    }, 3000); // 1 second delay to prevent accidental double-taps
+    }, 1000); // 1 second delay to prevent accidental double-taps
 }
 
 /* SERVICE INDICATOR */
@@ -764,4 +775,3 @@ document.addEventListener('dblclick', (e) => {
 
 </body>
 </html>
-
