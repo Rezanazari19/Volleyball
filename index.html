@@ -384,7 +384,7 @@ const AUDIO_CONFIG = {
     },
     onlineUrls: {
         point: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3', // Professional beep
-        minus: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'  // Audible beep for triple play
+        minus: 'https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3'  // Distinctive error/alarm sound
     }
 };
 
@@ -402,6 +402,9 @@ function loadAudio() {
     }
     audioPoint.volume = 0.5;
     audioMinus.volume = 0.5;
+    // Preload to reduce delay
+    audioPoint.load();
+    audioMinus.load();
 }
 
 loadAudio();
@@ -482,19 +485,24 @@ function playPointSound() {
 }
 
 function playMinusSound() {
-    audioMinus.currentTime = 0;
-    audioMinus.play().catch(e => console.log('Audio play failed:', e));
+    // Create three separate audio instances for cleaner beeps
+    const beep1 = new Audio(audioMinus.src);
+    const beep2 = new Audio(audioMinus.src);
+    const beep3 = new Audio(audioMinus.src);
     
-    // Play two more beeps quickly
-    setTimeout(() => {
-        audioMinus.currentTime = 0;
-        audioMinus.play().catch(e => console.log('Audio play failed:', e));
-    }, 200);
+    beep1.volume = 0.5;
+    beep2.volume = 0.5;
+    beep3.volume = 0.5;
+    
+    beep1.play().catch(e => console.log('Audio play failed:', e));
     
     setTimeout(() => {
-        audioMinus.currentTime = 0;
-        audioMinus.play().catch(e => console.log('Audio play failed:', e));
-    }, 400);
+        beep2.play().catch(e => console.log('Audio play failed:', e));
+    }, 150);
+    
+    setTimeout(() => {
+        beep3.play().catch(e => console.log('Audio play failed:', e));
+    }, 300);
 }
 
 function victoryTone() {
@@ -568,19 +576,28 @@ function changeScore(team, amount) {
 
     lock();
 
+    const teamName = team === 'A' ? 'Blue' : 'Red';
+    const score = team === 'A' ? scoreA : scoreB;
+
     if (amount === 1) {
         playPointSound();
         flash(team === 'A' ? "#3b82f6" : "#ef4444");
         lastScorer = team;
         updateServiceIndicator();
+        
+        // Announce after beep finishes (300ms delay)
+        setTimeout(() => {
+            announce(`${teamName}, ${score}`);
+        }, 300);
     } else {
         playMinusSound();
         flash(team === 'A' ? "#3b82f6" : "#ef4444", 2);
+        
+        // Announce after all three beeps finish (600ms delay)
+        setTimeout(() => {
+            announce(`${teamName}, ${score}`);
+        }, 600);
     }
-
-    const teamName = team === 'A' ? 'Blue' : 'Red';
-    const score = team === 'A' ? scoreA : scoreB;
-    announce(`${teamName}, ${score}`);
 
     checkWinner();
     save();
