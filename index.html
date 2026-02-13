@@ -1,46 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Volleyball Scoreboard Pro</title>
 
 <style>
-body {
+* {
     margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: #f4f6f8;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* HEADER */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* HEADER - Compact for landscape */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 20px;
-    background: #1e1e1e;
-    color: white;
+    padding: 8px 16px;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 10;
 }
 
 .title {
-    font-size: 18px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #fff;
+    text-transform: uppercase;
 }
 
-/* HAMBURGER */
+/* HAMBURGER MENU */
 .hamburger {
-    width: 28px;
-    height: 22px;
+    width: 24px;
+    height: 18px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     cursor: pointer;
+    padding: 4px;
 }
 
 .hamburger span {
-    height: 3px;
+    height: 2px;
     width: 100%;
-    background: white;
+    background: #fff;
     border-radius: 2px;
-    transition: 0.3s ease;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hamburger.active span:nth-child(1) {
@@ -50,29 +68,51 @@ body {
     opacity: 0;
 }
 .hamburger.active span:nth-child(3) {
-    transform: rotate(-45deg) translate(6px, -6px);
+    transform: rotate(-45deg) translate(5px, -5px);
 }
 
 /* MENU PANEL */
 .menu {
     position: fixed;
     top: 0;
-    right: -260px;
-    width: 240px;
+    right: -280px;
+    width: 260px;
     height: 100%;
-    background: #2b2b2b;
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(20px);
     color: white;
-    padding: 25px 20px;
-    transition: 0.3s ease;
-    z-index: 20;
+    padding: 60px 20px 20px;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 30;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .menu.open { right: 0; }
+
+.menu h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
 .menu button {
     width: 100%;
-    padding: 10px;
-    margin-top: 15px;
-    font-size: 16px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.menu button:active {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(0.98);
 }
 
 /* OVERLAY */
@@ -80,11 +120,11 @@ body {
     position: fixed;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.3);
+    background: rgba(0, 0, 0, 0.6);
     opacity: 0;
     pointer-events: none;
     transition: 0.3s;
-    z-index: 15;
+    z-index: 20;
 }
 
 .overlay.show {
@@ -92,10 +132,11 @@ body {
     pointer-events: auto;
 }
 
-/* MAIN AREA */
+/* MAIN SCOREBOARD - Optimized for landscape */
 .container {
     display: flex;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 42px);
+    position: relative;
 }
 
 .team {
@@ -105,70 +146,115 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
+    padding: 10px;
 }
 
-/* Indicator bar */
-.indicator {
-    width: 60%;
-    height: 6px;
-    border-radius: 3px;
-    margin-bottom: 20px;
+.team-blue {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
 }
 
-.blue-indicator { background: #1565C0; }
-.red-indicator { background: #C62828; }
+.team-red {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+}
+
+/* Service indicator */
+.service-indicator {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    animation: pulse 2s infinite;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.service-indicator.active {
+    opacity: 1;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.1); }
+}
 
 .team-name {
-    font-size: 20px;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .score {
-    font-size: 15vw;
-    font-weight: 600;
-    margin: 15px 0;
+    font-size: 22vw;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    margin: 8px 0;
+    user-select: none;
 }
 
-/* BUTTON COLUMN */
+/* CONTROLS - Horizontal layout for landscape */
 .controls {
     display: flex;
-    flex-direction: column;
-    gap: 18px;
-    margin-top: 10px;
+    gap: 16px;
+    margin-top: 12px;
 }
 
 .control-btn {
-    width: 70px;
-    height: 55px;
-    font-size: 28px;
-    border-radius: 12px;
+    width: 60px;
+    height: 60px;
+    font-size: 32px;
+    font-weight: 600;
+    border-radius: 50%;
     border: none;
-    background: #d0d3d8;
-    color: #333;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e293b;
     cursor: pointer;
-    transition: all 0.15s ease;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .control-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transform: scale(0.92);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .control-btn:disabled {
-    opacity: 0.4;
+    opacity: 0.3;
     cursor: not-allowed;
 }
 
-/* Wins */
+/* WINS BADGE */
 .wins {
     position: absolute;
-    bottom: 25px;
-    font-size: 16px;
+    bottom: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Flash overlay */
+/* FLASH OVERLAY */
 .flash {
     position: fixed;
     top: 0;
@@ -177,23 +263,57 @@ body {
     height: 100%;
     opacity: 0;
     pointer-events: none;
+    transition: opacity 0.1s;
 }
 
-/* Swap button at bottom */
+/* SWAP BUTTON */
 .swap-btn {
     position: fixed;
     bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
-    background: #ffa726;
-    color: white;
-    font-size: 18px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 600;
     padding: 10px 20px;
     border: none;
-    border-radius: 12px;
+    border-radius: 20px;
     cursor: pointer;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     display: none;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    z-index: 5;
+}
+
+.swap-btn:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
+/* DIVIDER */
+.divider {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-50%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .score {
+        font-size: 20vw;
+    }
+    
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 28px;
+    }
 }
 </style>
 </head>
@@ -201,7 +321,7 @@ body {
 <body>
 
 <div class="header">
-    <div class="title">🏐 Volleyball Scoreboard</div>
+    <div class="title">🏐 Volleyball Scoreboard Pro</div>
     <div class="hamburger" id="hamburger" onclick="toggleMenu()">
         <span></span>
         <span></span>
@@ -210,161 +330,257 @@ body {
 </div>
 
 <div id="menu" class="menu">
-    <h3>Menu</h3>
-    <button id="resetBtn">Hold 10s to Reset</button>
+    <h3>Settings</h3>
+    <button id="resetGameBtn">Hold 5s to Reset Game</button>
+    <button id="resetBtn">Hold 10s to Reset All</button>
 </div>
 
 <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 <div id="flash" class="flash"></div>
 
 <div class="container">
+    <div class="divider"></div>
 
     <!-- BLUE TEAM -->
-    <div class="team" id="teamA">
-        <div class="indicator blue-indicator" id="indicatorA"></div>
+    <div class="team team-blue" id="teamA">
+        <div class="service-indicator" id="serviceA">🏐</div>
         <div class="team-name" id="nameA">BLUE</div>
         <div id="scoreA" class="score">0</div>
 
         <div class="controls">
-            <button class="control-btn" onclick="changeScore('A',1)">+</button>
             <button class="control-btn" onclick="changeScore('A',-1)">−</button>
+            <button class="control-btn" onclick="changeScore('A',1)">+</button>
         </div>
 
-        <div class="wins">Wins: <span id="winsA">0</span></div>
+        <div class="wins">Sets: <span id="winsA">0</span></div>
     </div>
 
     <!-- RED TEAM -->
-    <div class="team" id="teamB">
-        <div class="indicator red-indicator" id="indicatorB"></div>
+    <div class="team team-red" id="teamB">
+        <div class="service-indicator" id="serviceB">🏐</div>
         <div class="team-name" id="nameB">RED</div>
         <div id="scoreB" class="score">0</div>
 
         <div class="controls">
-            <button class="control-btn" onclick="changeScore('B',1)">+</button>
             <button class="control-btn" onclick="changeScore('B',-1)">−</button>
+            <button class="control-btn" onclick="changeScore('B',1)">+</button>
         </div>
 
-        <div class="wins">Wins: <span id="winsB">0</span></div>
+        <div class="wins">Sets: <span id="winsB">0</span></div>
     </div>
 
 </div>
 
-<button id="swapBtn" class="swap-btn" onclick="swapSides()">Switch Sides</button>
+<button id="swapBtn" class="swap-btn" onclick="swapSides()">⇄ Switch Sides</button>
 
 <script>
+// Audio Configuration
+// Option 1: Use local audio files (place in same directory as HTML)
+const AUDIO_CONFIG = {
+    useLocal: false, // Set to false to use online sounds
+    localFiles: {
+        point: 'beep.mp3',      // Point scored sound
+        minus: 'danger.mp3'     // Point deducted sound
+    },
+    onlineUrls: {
+        point: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3', // Professional beep
+        minus: 'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'  // Audible beep for triple play
+    }
+};
+
+// Initialize audio elements
+const audioPoint = new Audio();
+const audioMinus = new Audio();
+
+function loadAudio() {
+    if (AUDIO_CONFIG.useLocal) {
+        audioPoint.src = AUDIO_CONFIG.localFiles.point;
+        audioMinus.src = AUDIO_CONFIG.localFiles.minus;
+    } else {
+        audioPoint.src = AUDIO_CONFIG.onlineUrls.point;
+        audioMinus.src = AUDIO_CONFIG.onlineUrls.minus;
+    }
+    audioPoint.volume = 0.5;
+    audioMinus.volume = 0.5;
+}
+
+loadAudio();
+
+// Game state
 let scoreA = localStorage.getItem("scoreA") ? parseInt(localStorage.getItem("scoreA")) : 0;
 let scoreB = localStorage.getItem("scoreB") ? parseInt(localStorage.getItem("scoreB")) : 0;
 let winsA = localStorage.getItem("winsA") ? parseInt(localStorage.getItem("winsA")) : 0;
 let winsB = localStorage.getItem("winsB") ? parseInt(localStorage.getItem("winsB")) : 0;
+let lastScorer = localStorage.getItem("lastScorer") || "A";
 
 let actionLocked = false;
 let swapLocked = false;
 let resetTimer = null;
+let resetGameTimer = null;
 
 updateUI();
 updateSwapButton();
+updateServiceIndicator();
 
 /* RESET HOLD LOGIC */
 const resetBtn = document.getElementById("resetBtn");
+const resetGameBtn = document.getElementById("resetGameBtn");
 
+// Reset All (scores + sets)
 resetBtn.addEventListener("mousedown", startResetTimer);
 resetBtn.addEventListener("touchstart", startResetTimer);
-
 resetBtn.addEventListener("mouseup", cancelResetTimer);
 resetBtn.addEventListener("mouseleave", cancelResetTimer);
 resetBtn.addEventListener("touchend", cancelResetTimer);
 
-function startResetTimer(){
-    resetBtn.innerText = "Hold... 10s";
-    resetTimer = setTimeout(()=>{
+// Reset Game Only (scores, keep sets)
+resetGameBtn.addEventListener("mousedown", startResetGameTimer);
+resetGameBtn.addEventListener("touchstart", startResetGameTimer);
+resetGameBtn.addEventListener("mouseup", cancelResetGameTimer);
+resetGameBtn.addEventListener("mouseleave", cancelResetGameTimer);
+resetGameBtn.addEventListener("touchend", cancelResetGameTimer);
+
+function startResetTimer(e) {
+    e.preventDefault();
+    resetBtn.innerText = "Resetting...";
+    resetTimer = setTimeout(() => {
         resetAll();
-        resetBtn.innerText = "Hold 10s to Reset";
-    },10000);
+        resetBtn.innerText = "Hold 10s to Reset All";
+    }, 10000);
 }
 
-function cancelResetTimer(){
+function cancelResetTimer() {
     clearTimeout(resetTimer);
-    resetBtn.innerText = "Hold 10s to Reset";
+    resetBtn.innerText = "Hold 10s to Reset All";
 }
 
-/* EXISTING CODE BELOW (UNCHANGED) */
-function toggleMenu(){
+function startResetGameTimer(e) {
+    e.preventDefault();
+    resetGameBtn.innerText = "Resetting...";
+    resetGameTimer = setTimeout(() => {
+        resetGame();
+        resetGameBtn.innerText = "Hold 5s to Reset Game";
+    }, 5000);
+}
+
+function cancelResetGameTimer() {
+    clearTimeout(resetGameTimer);
+    resetGameBtn.innerText = "Hold 5s to Reset Game";
+}
+
+/* MENU TOGGLE */
+function toggleMenu() {
     document.getElementById("menu").classList.toggle("open");
     document.getElementById("hamburger").classList.toggle("active");
     document.getElementById("overlay").classList.toggle("show");
 }
 
-function beep(freq=800, duration=0.15){
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    osc.frequency.value = freq;
-    osc.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + duration);
+/* AUDIO FUNCTIONS */
+function playPointSound() {
+    audioPoint.currentTime = 0;
+    audioPoint.play().catch(e => console.log('Audio play failed:', e));
 }
 
-function victoryTone(){
-    beep(600,0.2);
-    setTimeout(()=>beep(750,0.2),200);
+function playMinusSound() {
+    audioMinus.currentTime = 0;
+    audioMinus.play().catch(e => console.log('Audio play failed:', e));
+    
+    // Play two more beeps quickly
+    setTimeout(() => {
+        audioMinus.currentTime = 0;
+        audioMinus.play().catch(e => console.log('Audio play failed:', e));
+    }, 200);
+    
+    setTimeout(() => {
+        audioMinus.currentTime = 0;
+        audioMinus.play().catch(e => console.log('Audio play failed:', e));
+    }, 400);
 }
 
-function dangerTone(){
-    beep(200,0.2);
-    setTimeout(()=>beep(200,0.2),250);
-    setTimeout(()=>beep(200,0.2),500);
+function victoryTone() {
+    // Play point sound twice for victory
+    playPointSound();
+    setTimeout(() => playPointSound(), 300);
 }
 
-function announce(text){
-    const synth = window.speechSynthesis;
-    const utter = new SpeechSynthesisUtterance(text);
-    synth.speak(utter);
+/* ANNOUNCEMENTS */
+function announce(text) {
+    if ('speechSynthesis' in window) {
+        const synth = window.speechSynthesis;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.rate = 1.1;
+        utter.pitch = 1;
+        synth.speak(utter);
+    }
 }
 
-function flash(color, times=1){
+/* FLASH EFFECT */
+function flash(color, times = 1) {
     const f = document.getElementById("flash");
     f.style.background = color;
-    let count=0;
-    let interval=setInterval(()=>{
-        f.style.opacity = f.style.opacity==0 ? 0.25 : 0;
+    let count = 0;
+    let interval = setInterval(() => {
+        f.style.opacity = f.style.opacity == 0 ? 0.3 : 0;
         count++;
-        if(count>=times*2){
+        if (count >= times * 2) {
             clearInterval(interval);
-            f.style.opacity=0;
+            f.style.opacity = 0;
         }
-    },150);
+    }, 120);
 }
 
-function lock(){
-    actionLocked=true;
-    document.querySelectorAll(".control-btn").forEach(b=>b.disabled=true);
-    setTimeout(()=>{
-        actionLocked=false;
-        document.querySelectorAll(".control-btn").forEach(b=>b.disabled=false);
-    },500);
+/* LOCK CONTROLS */
+function lock() {
+    actionLocked = true;
+    document.querySelectorAll(".control-btn").forEach(b => b.disabled = true);
+    setTimeout(() => {
+        actionLocked = false;
+        document.querySelectorAll(".control-btn").forEach(b => b.disabled = false);
+    }, 5000); // 5 second delay to prevent cheating
 }
 
-function changeScore(team, amount){
-    if(actionLocked) return;
-
-    if(team==='A'){
-        if(amount===-1 && scoreA===0) return;
-        scoreA+=amount;
+/* SERVICE INDICATOR */
+function updateServiceIndicator() {
+    const serviceA = document.getElementById("serviceA");
+    const serviceB = document.getElementById("serviceB");
+    
+    serviceA.classList.remove("active");
+    serviceB.classList.remove("active");
+    
+    if (lastScorer === "A") {
+        serviceA.classList.add("active");
     } else {
-        if(amount===-1 && scoreB===0) return;
-        scoreB+=amount;
+        serviceB.classList.add("active");
+    }
+}
+
+/* SCORE CHANGE */
+function changeScore(team, amount) {
+    if (actionLocked) return;
+
+    if (team === 'A') {
+        if (amount === -1 && scoreA === 0) return;
+        scoreA += amount;
+    } else {
+        if (amount === -1 && scoreB === 0) return;
+        scoreB += amount;
     }
 
     lock();
 
-    if(amount===1){
-        beep();
-        flash(team==='A' ? "#1565C0" : "#C62828");
+    if (amount === 1) {
+        playPointSound();
+        flash(team === 'A' ? "#3b82f6" : "#ef4444");
+        lastScorer = team;
+        updateServiceIndicator();
     } else {
-        dangerTone();
-        flash(team==='A' ? "#1565C0" : "#C62828",3);
+        playMinusSound();
+        flash(team === 'A' ? "#3b82f6" : "#ef4444", 2);
     }
 
-    announce(`Team ${team==='A'?'Blue':'Red'} score is now ${team==='A'?scoreA:scoreB}`);
+    const teamName = team === 'A' ? 'Blue' : 'Red';
+    const score = team === 'A' ? scoreA : scoreB;
+    announce(`${teamName}, ${score}`);
 
     checkWinner();
     save();
@@ -372,87 +588,154 @@ function changeScore(team, amount){
     updateSwapButton();
 }
 
-function checkWinner(){
-    if((scoreA>=25 || scoreB>=25) && Math.abs(scoreA-scoreB)>=2){
-        if(scoreA>scoreB){ 
-            winsA++; flash("#1565C0",3); 
-            announce("Blue wins the set!");
-        } else { 
-            winsB++; flash("#C62828",3); 
-            announce("Red wins the set!");
+/* CHECK WINNER */
+function checkWinner() {
+    if ((scoreA >= 25 || scoreB >= 25) && Math.abs(scoreA - scoreB) >= 2) {
+        const winner = scoreA > scoreB ? 'A' : 'B';
+        const winnerName = winner === 'A' ? 'Blue' : 'Red';
+        const color = winner === 'A' ? "#3b82f6" : "#ef4444";
+        
+        if (winner === 'A') {
+            winsA++;
+        } else {
+            winsB++;
         }
+        
+        flash(color, 3);
         victoryTone();
-        setTimeout(()=>{
-            scoreA=0; scoreB=0;
-            save(); updateUI();
+        announce(`${winnerName} wins the set!`);
+        
+        setTimeout(() => {
+            scoreA = 0;
+            scoreB = 0;
+            lastScorer = winner; // Winner serves next set
+            save();
+            updateUI();
             updateSwapButton();
-        },1500);
+            updateServiceIndicator();
+        }, 2000);
     }
 }
 
-function save(){
-    localStorage.setItem("scoreA",scoreA);
-    localStorage.setItem("scoreB",scoreB);
-    localStorage.setItem("winsA",winsA);
-    localStorage.setItem("winsB",winsB);
+/* SAVE TO LOCALSTORAGE */
+function save() {
+    localStorage.setItem("scoreA", scoreA);
+    localStorage.setItem("scoreB", scoreB);
+    localStorage.setItem("winsA", winsA);
+    localStorage.setItem("winsB", winsB);
+    localStorage.setItem("lastScorer", lastScorer);
 }
 
-function resetAll(){
-    scoreA=0; scoreB=0; winsA=0; winsB=0;
-    save(); updateUI();
+/* RESET GAME ONLY (keep sets) */
+function resetGame() {
+    scoreA = 0;
+    scoreB = 0;
+    lastScorer = "A";
+    save();
+    updateUI();
     updateSwapButton();
+    updateServiceIndicator();
     toggleMenu();
+    announce("Game reset");
 }
 
-function swapSides(){
-    if(swapLocked) return;
+/* RESET ALL */
+function resetAll() {
+    scoreA = 0;
+    scoreB = 0;
+    winsA = 0;
+    winsB = 0;
+    lastScorer = "A";
+    save();
+    updateUI();
+    updateSwapButton();
+    updateServiceIndicator();
+    toggleMenu();
+    announce("Scoreboard reset");
+}
 
+/* SWAP SIDES */
+function swapSides() {
+    if (swapLocked) return;
+
+    // Swap team names
     const nameA = document.getElementById("nameA").innerText;
     const nameB = document.getElementById("nameB").innerText;
     document.getElementById("nameA").innerText = nameB;
     document.getElementById("nameB").innerText = nameA;
 
-    const indA = document.getElementById("indicatorA").className;
-    const indB = document.getElementById("indicatorB").className;
-    document.getElementById("indicatorA").className = indB;
-    document.getElementById("indicatorB").className = indA;
+    // Swap team colors/classes
+    const teamAEl = document.getElementById("teamA");
+    const teamBEl = document.getElementById("teamB");
+    
+    const hasBlueA = teamAEl.classList.contains("team-blue");
+    const hasRedA = teamAEl.classList.contains("team-red");
+    
+    if (hasBlueA) {
+        teamAEl.classList.remove("team-blue");
+        teamAEl.classList.add("team-red");
+        teamBEl.classList.remove("team-red");
+        teamBEl.classList.add("team-blue");
+    } else {
+        teamAEl.classList.remove("team-red");
+        teamAEl.classList.add("team-blue");
+        teamBEl.classList.remove("team-blue");
+        teamBEl.classList.add("team-red");
+    }
 
+    // Swap scores
     const tempScore = scoreA;
     scoreA = scoreB;
     scoreB = tempScore;
 
+    // Swap wins
     const tempWins = winsA;
     winsA = winsB;
     winsB = tempWins;
 
+    // Swap last scorer
+    lastScorer = lastScorer === "A" ? "B" : "A";
+
     save();
     updateUI();
-    announce("Switching sides");
+    updateServiceIndicator();
+    announce("Sides switched");
 
     swapLocked = true;
     updateSwapButton();
-    setTimeout(()=>{ swapLocked=false; updateSwapButton(); },3000);
+    setTimeout(() => {
+        swapLocked = false;
+        updateSwapButton();
+    }, 3000);
 }
 
-function updateSwapButton(){
+/* UPDATE SWAP BUTTON VISIBILITY */
+function updateSwapButton() {
     const btn = document.getElementById("swapBtn");
-    if(swapLocked){
-        btn.style.display="none";
+    if (swapLocked) {
+        btn.style.display = "none";
         return;
     }
-    if((scoreA===0 && scoreB===0) || winsA>0 || winsB>0){
-        btn.style.display="block";
+    // Only show when both scores are 0
+    if (scoreA === 0 && scoreB === 0) {
+        btn.style.display = "block";
     } else {
-        btn.style.display="none";
+        btn.style.display = "none";
     }
 }
 
-function updateUI(){
-    document.getElementById("scoreA").innerText=scoreA;
-    document.getElementById("scoreB").innerText=scoreB;
-    document.getElementById("winsA").innerText=winsA;
-    document.getElementById("winsB").innerText=winsB;
+/* UPDATE UI */
+function updateUI() {
+    document.getElementById("scoreA").innerText = scoreA;
+    document.getElementById("scoreB").innerText = scoreB;
+    document.getElementById("winsA").innerText = winsA;
+    document.getElementById("winsB").innerText = winsB;
 }
+
+// Prevent zoom on double tap
+document.addEventListener('dblclick', (e) => {
+    e.preventDefault();
+}, { passive: false });
 </script>
 
 </body>
