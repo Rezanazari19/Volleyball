@@ -551,7 +551,7 @@ function lock() {
     setTimeout(() => {
         actionLocked = false;
         document.querySelectorAll(".control-btn").forEach(b => b.disabled = false);
-    }, 5000); // 5 second delay to prevent cheating
+    }, 3000); // 5 second delay to prevent cheating
 }
 
 /* SERVICE INDICATOR */
@@ -764,3 +764,4 @@ document.addEventListener('dblclick', (e) => {
 
 </body>
 </html>
+
