@@ -386,12 +386,18 @@ body {
 const AUDIO_CONFIG = {
     useLocal: true, // Set to false to use online sounds
     localFiles: {
-        point: './beep.mp3',      // Point scored sound
-        minus: './danger.mp3'     // Point deducted sound
+        point: 'beep.mp3',      // Point scored sound (works locally and on GitHub Pages if in same folder)
+        minus: 'danger.mp3'     // Point deducted sound (works locally and on GitHub Pages if in same folder)
     },
     onlineUrls: {
         point: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3', // Professional beep
         minus: 'https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3'  // Distinctive error/alarm sound
+    },
+    // Option 3: Use GitHub raw URLs (if hosting on GitHub Pages)
+    // Replace 'username' and 'repo' with your actual GitHub username and repository name
+    githubUrls: {
+        point: 'https://raw.githubusercontent.com/username/repo/main/beep.mp3',
+        minus: 'https://raw.githubusercontent.com/username/repo/main/danger.mp3'
     }
 };
 
@@ -412,12 +418,18 @@ function loadAudio() {
     audioPoint.volume = 0.5;
     audioMinus.volume = 0.5;
     
-    // Add error handlers
+    // Add error handlers with fallback to online
     audioPoint.addEventListener('error', (e) => {
         console.error('Error loading point sound:', audioPoint.src, e);
+        console.log('Falling back to online audio for point sound');
+        audioPoint.src = AUDIO_CONFIG.onlineUrls.point;
+        audioPoint.load();
     });
     audioMinus.addEventListener('error', (e) => {
         console.error('Error loading minus sound:', audioMinus.src, e);
+        console.log('Falling back to online audio for minus sound');
+        audioMinus.src = AUDIO_CONFIG.onlineUrls.minus;
+        audioMinus.load();
     });
     
     // Preload to reduce delay
