@@ -160,9 +160,8 @@ body {
 /* Service indicator */
 .service-indicator {
     position: absolute;
-    top: 15px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translateY(-50%);
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -177,13 +176,21 @@ body {
     transition: opacity 0.3s;
 }
 
+#serviceA {
+    right: 15px;
+}
+
+#serviceB {
+    left: 15px;
+}
+
 .service-indicator.active {
     opacity: 1;
 }
 
 @keyframes pulse {
-    0%, 100% { transform: translateX(-50%) scale(1); }
-    50% { transform: translateX(-50%) scale(1.1); }
+    0%, 100% { transform: translateY(-50%) scale(1); }
+    50% { transform: translateY(-50%) scale(1.1); }
 }
 
 .team-name {
